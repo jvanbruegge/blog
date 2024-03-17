@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel="stylesheet" href="./main.css" />
+  </head>
+  <body>
+    <header>
+      <nav id="main-menu">
+        <span>Programming & Proving</span>
+        <ul>
+          <li><a>Blog</a></li>
+          <li><a>RSS</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <article>
+        <header>
+          <h1>Redesigning a framework</h1>
+          <time datetime="2022-08-11">August 11, 2022</time>
+          <ul>
+            <li><a>typescript</a></li>
+            <li><a>open-source</a></li>
+          </ul>
+        </header>
+        <p>For the last few years, the core team of Cycle.js (André and me) has been redesigning the architecture and the developer experience of the framework. This February we finally found a solution to our problems that still stays true to the core ideas of the framework.</p>
+        <p>This blog post marks the first in a series that will cover the new design and its development. In this installment, I want to bring everyone onto the same page. <em>What</em> where the problems I described earlier and <em>how</em> does the new design solve them. In the later articles I will cover the new <code>run</code> function (the core of the framework) and the new HTTP driver and especially the issues I encountered while implementing those. <em>*cough*</em> race conditions <em>*cough*</em>.</p>
+        <h2>The status quo</h2>
+        <p>Everyone that is familiar with Cycle.js may skip this part, for the rest here is how the framework works in the current version: Everything in your application is based around the notion of streams. The kinds of streams that RxJS made popular. All you application code is doing is reading streams of events from the outside (ie click events on the DOM or responses of HTTP requests), transforming and combining them and finally giving streams of commands back to the outside (ie a new virtual DOM to render on the DOM or a HTTP request to execute).</p>
+      </article>
+    </main>
+  </body>
+</html>
