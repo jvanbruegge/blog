@@ -2,11 +2,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  color: var(--primary-text);
 }
 
 html {
   background: rgb(24, 29, 36);
-  color: var(--primary-text);
   font-family: sans-serif;
   display: flex;
   justify-content: center;
@@ -36,7 +36,14 @@ nav {
   align-items: center;
 }
 
-nav > span {
+nav a {
+  text-decoration: none;
+}
+nav > ul a:hover {
+  text-decoration: underline;
+}
+
+nav > a {
   color: #9861c1;
 }
 

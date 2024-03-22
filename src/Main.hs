@@ -13,9 +13,11 @@ import Data.Text qualified as T
 import Slick (markdownToHTML, compileTemplate', substitute)
 import Slick.Utils (convert)
 import qualified Data.Aeson.KeyMap as KM
-import Development.Shake.FilePath (dropDirectory1, (-<.>), (</>))
+import Development.Shake.FilePath (dropDirectory1, (</>), dropExtension)
 import Data.Functor (void)
 import Data.Maybe (fromMaybe)
+import Control.Monad (foldM)
+import Data.Aeson.Key (fromText)
 
 outputFolder :: FilePath
 outputFolder = "build/"
@@ -23,9 +25,11 @@ outputFolder = "build/"
 data Post = MkPost
   { title :: String
   , author :: String
+  , description :: String
   , content :: String
   , url :: String
   , date :: String
+  , readableDate :: String
   , tags :: [String]
   }
   deriving stock (Generic, Eq, Ord, Show)
@@ -55,26 +59,46 @@ formatDate (A.String t) |
       _ -> Nothing
 formatDate _ = Nothing
 
+renderTemplates :: A.Value -> [FilePath] -> Action A.Value
+renderTemplates = foldM go
+  where
+    go o@(A.Object m) fp = do
+      template <- compileTemplate' ("templates" </> fp)
+      pure . A.Object $ KM.insert "content" (A.String $ substitute template o) m
+    go x _ = pure x
+
+getRendered :: A.Value -> T.Text
+getRendered (A.Object m) | Just (A.String x) <- KM.lookup "content" m = x
+getRendered _ = error "Could not find content key in object"
+
 buildRules :: Action ()
 buildRules = do
-  _allPosts <- mapP buildPost =<< getDirectoryFiles "." ["articles//*.md"]
+  allPosts <- mapP buildPost =<< getDirectoryFiles "." ["articles//*.md"]
+  buildPostList allPosts
   copyStaticFiles
 
 buildPost :: FilePath -> Action Post
 buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
   content <- readFile' srcPath
   A.Object postData <- markdownToHTML . T.pack $ content
-  let postUrl = T.pack . dropDirectory1 $ srcPath -<.> "html"
+  let postUrl = T.pack . dropDirectory1 $ dropExtension srcPath
       dateOpt = KM.lookup "date" postData >>= formatDate
       postData' =
         KM.insert "url" (A.String postUrl) $
-        KM.insert "prefix" (A.String "..") $
-        KM.insert "readableDate" (A.String $ fromMaybe "" dateOpt) postData
-  template <- compileTemplate' "templates/post.html"
-  shell <- compileTemplate' "templates/shell.html"
-  let postData'' = KM.insert "content" (A.String $ substitute template (A.Object postData')) postData'
-  writeFile' (outputFolder </> T.unpack postUrl) . T.unpack $ substitute shell (A.Object postData'')
+        KM.insert "prefix" (A.String "../..") $ -- posts are placed in <year>/<slug>/index.html
+        KM.insert "readableDate" (A.String $ fromMaybe "unknown date" dateOpt) postData
+  rendered <- getRendered <$> renderTemplates (A.Object postData') ["post.html", "shell.html"]
+  writeFile' (outputFolder </> T.unpack postUrl </> "index.html") . T.unpack $ rendered
   convert $ A.Object postData'
+
+buildPostList :: [Post] -> Action ()
+buildPostList posts = do
+  let postData = A.Object $ KM.fromList
+        [ (fromText "posts", A.toJSON posts)
+        , (fromText "prefix", A.String ".")
+        ]
+  rendered <- getRendered <$> renderTemplates postData ["postList.html", "shell.html"]
+  writeFile' (outputFolder </> "index.html") . T.unpack $ rendered
 
 copyStaticFiles :: Action ()
 copyStaticFiles = do
