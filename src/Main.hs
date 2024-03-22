@@ -12,7 +12,7 @@ import Data.Aeson.Types qualified as A
 import Data.Text qualified as T
 import Slick (markdownToHTML, compileTemplate', substitute)
 import Slick.Utils (convert)
-import qualified Data.Aeson.KeyMap as KM
+import Data.Aeson.KeyMap qualified as KM
 import Development.Shake.FilePath (dropDirectory1, (</>), dropExtension)
 import Data.Functor (void)
 import Data.Maybe (fromMaybe)
@@ -20,6 +20,7 @@ import Control.Monad (foldM)
 import Data.Aeson.Key (fromText)
 import Data.List (sortOn)
 import Data.Ord (Down(..))
+import Data.Set qualified as Set
 
 outputFolder :: FilePath
 outputFolder = "build/"
@@ -76,7 +77,9 @@ getRendered _ = error "Could not find content key in object"
 buildRules :: Action ()
 buildRules = do
   allPosts <- mapP buildPost =<< getDirectoryFiles "." ["articles//*.md"]
-  buildPostList allPosts
+  buildPostList Nothing allPosts
+  let allTags = Set.toList $ foldr (Set.union . Set.fromList . tags) Set.empty allPosts
+  void . forP allTags $ \tag -> buildPostList (Just (tag, "tags" </> tag)) (filter (elem tag . tags) allPosts)
   copyStaticFiles
 
 buildPost :: FilePath -> Action Post
@@ -93,15 +96,15 @@ buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
   writeFile' (outputFolder </> T.unpack postUrl </> "index.html") . T.unpack $ rendered
   convert $ A.Object postData'
 
-buildPostList :: [Post] -> Action ()
-buildPostList posts = do
+buildPostList :: Maybe (String, FilePath) -> [Post] -> Action ()
+buildPostList tag posts = do
   let posts' = sortOn (Down . date) posts
-  let postData = A.Object $ KM.fromList
+  let postData = A.Object $ KM.fromList $
         [ (fromText "posts", A.toJSON posts')
-        , (fromText "prefix", A.String ".")
-        ]
+        , (fromText "prefix", A.String (maybe "." (const "../..") tag))
+        ] <> maybe [] (\(t, _) -> [(fromText "tag", A.String (T.pack t))]) tag
   rendered <- getRendered <$> renderTemplates postData ["postList.html", "shell.html"]
-  writeFile' (outputFolder </> "index.html") . T.unpack $ rendered
+  writeFile' (outputFolder <> maybe "" snd tag </> "index.html") . T.unpack $ rendered
 
 copyStaticFiles :: Action ()
 copyStaticFiles = do

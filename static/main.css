@@ -76,7 +76,6 @@ nav > ul {
 }
 
 main {
-  margin-top: 1.5em;
   height: auto;
   padding-bottom: 1em;
 
@@ -84,7 +83,7 @@ main {
   font-size: 18px;
 }
 
-article + article {
+article {
   margin-top: 2em;
 }
 
@@ -126,7 +125,7 @@ article > header ul {
   color: var(--secondary-text);
 }
 
-article > header li {
+.tag {
   border: 0.05em solid white;
   border-radius: 0.2em;
   padding: 0 0.2em;
