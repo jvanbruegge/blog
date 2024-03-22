@@ -1,0 +1,55 @@
+name: Deploy
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install haskell
+        uses: haskell-actions/setup@v2.6.3
+        with:
+          ghc-version: 9.6.4
+
+      - name: Cache cabal dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/cabal
+            ~/.cabal
+          key: cabal-deps-${{ hashFiles('*cabal*') }}
+          save-always: true
+
+      - name: Build blog generator
+        run: cabal build blog
+
+      - name: Build blog
+        run: cabal run blog
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
