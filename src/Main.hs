@@ -18,6 +18,8 @@ import Data.Functor (void)
 import Data.Maybe (fromMaybe)
 import Control.Monad (foldM)
 import Data.Aeson.Key (fromText)
+import Data.List (sortOn)
+import Data.Ord (Down(..))
 
 outputFolder :: FilePath
 outputFolder = "build/"
@@ -93,8 +95,9 @@ buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
 
 buildPostList :: [Post] -> Action ()
 buildPostList posts = do
+  let posts' = sortOn ( date) posts
   let postData = A.Object $ KM.fromList
-        [ (fromText "posts", A.toJSON posts)
+        [ (fromText "posts", A.toJSON posts')
         , (fromText "prefix", A.String ".")
         ]
   rendered <- getRendered <$> renderTemplates postData ["postList.html", "shell.html"]
