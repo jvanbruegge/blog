@@ -23,7 +23,9 @@ jobs:
           path: |
             ~/.cache/cabal
             ~/.cabal
-          key: cabal-deps-${{ hashFiles('*cabal*') }}
+          key: cabal-deps-${{ hashFiles('cabal.project') }}-${{ hashFiles('blog.cabal') }}
+          restore-keys: |
+            cabal-deps-${{ hashFiles('cabal.project') }}
           save-always: true
 
       - name: Build blog generator
