@@ -95,7 +95,7 @@ buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
 
 buildPostList :: [Post] -> Action ()
 buildPostList posts = do
-  let posts' = sortOn ( date) posts
+  let posts' = sortOn (Down . date) posts
   let postData = A.Object $ KM.fromList
         [ (fromText "posts", A.toJSON posts')
         , (fromText "prefix", A.String ".")

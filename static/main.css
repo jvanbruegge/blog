@@ -14,16 +14,17 @@ html {
   --primary-text: rgb(210, 210, 210);
   --secondary-text: #565759;
   --hover-color: #3A3B3C;
-}
 
-@media print {
-  body > header {
-    display: none;
-  }
+  --highlight-color: #9861c1;
+
+  --solarized-green: #859900;
+  --solarized-function: #268bd2;
+  --solarized-variable: #cb4b16;
+  --solarized-string: #2aa198;
 }
 
 body {
-  margin: 0 1em;
+  padding: 0 1em;
   width: 100%;
   max-width: 1000px;
 }
@@ -39,12 +40,32 @@ nav {
 nav a {
   text-decoration: none;
 }
+header nav > a:visited {
+  color: var(--highlight-color);
+}
+header nav > a {
+  color: var(--highlight-color);
+}
+nav > ul a {
+  color: var(--primary-text);
+}
+nav > ul a:visited {
+  color: var(--primary-text);
+}
 nav > ul a:hover {
   text-decoration: underline;
 }
 
-nav > a {
-  color: #9861c1;
+header a:visited {
+  color: white;
+}
+
+a {
+  color: var(--solarized-green);
+}
+
+a:visited {
+  color: var(--highlight-color);
 }
 
 nav > ul {
@@ -56,7 +77,8 @@ nav > ul {
 
 main {
   margin-top: 1.5em;
-  height: 100%;
+  height: auto;
+  padding-bottom: 1em;
 
   line-height: 1.4em;
   font-size: 18px;
@@ -110,13 +132,58 @@ article > header li {
   padding: 0 0.2em;
 }
 
-code {
+p code {
   background: var(--hover-color);
   padding: 0.1em;
   border-radius: 0.2em;
 }
 
+pre {
+  margin: 0.5em;
+  padding: 0.2em;
+  background: rgb(0, 43, 54);
+  overflow-x: scroll;
+  color: var(--solarized-function);
+}
+
+.kw, .cf {
+  color: var(--solarized-green);
+}
+.fu {
+  color: var(--solarized-variable);
+}
+.st {
+  color: var(--solarized-string);
+}
+
 p + p {
   margin-top: 0.8em;
 }
+
+@media print {
+  body > header {
+    display: none;
+  }
+}
+
+@media (max-width: 500px) {
+  nav {
+    flex-direction: column;
+    gap: 0.5em;
+  }
+
+  nav > a {
+    text-align: center;
+  }
+
+  nav > ul {
+    gap: 0.5em;
+    font-size: 0.9em;
+  }
+
+  main {
+    margin-top: 0.3em;
+  }
+}
+
 
