@@ -159,6 +159,17 @@ p + p {
   margin-top: 0.8em;
 }
 
+footer {
+  display: flex;
+  width: 100%;
+  padding: 0.8em;
+  border-radius: 5px;
+  flex-direction: column;
+  background: #25003e;
+  margin-bottom: 2em;
+  line-height: 1.5em;
+}
+
 @media print {
   body > header {
     display: none;
@@ -184,5 +195,3 @@ p + p {
     margin-top: 0.3em;
   }
 }
-
-

@@ -109,6 +109,7 @@ buildPostList tag posts = do
 copyStaticFiles :: Action ()
 copyStaticFiles = do
     filepaths <- getDirectoryFiles "./static" ["*"]
+    copyFileChanged ("articles" </> "LICENSE") (outputFolder </> "LICENSE")
     void $ forP filepaths $ \filepath ->
       copyFileChanged ("static" </> filepath) (outputFolder </> filepath)
 
