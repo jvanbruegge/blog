@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title>Programming &amp; Proving</title>
+  <link href="https://jvanbruegge.github.io/blog/"/>
+  <updated>{{updated}}</updated>
+  <author>
+    <name>Jan van Brügge</name>
+  </author>
+  <id>urn:uuid:52dd550f-4e75-420d-a0a1-e501a1dec9fe</id>
+
+  {{#posts}}
+  <entry>
+    <title>{{title}}</title>
+    <link href="https://jvanbruegge.github.io/blog/{{url}}"/>
+    <id>https://jvanbruegge.github.io/blog/{{url}}</id>
+    <updated>{{date}}</updated>
+    <summary>{{description}}</summary>
+  </entry>
+  {{/posts}}
+</feed>

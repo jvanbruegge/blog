@@ -77,9 +77,12 @@ getRendered _ = error "Could not find content key in object"
 buildRules :: Action ()
 buildRules = do
   allPosts <- mapP buildPost =<< getDirectoryFiles "." ["articles//*.md"]
-  buildPostList Nothing allPosts
+  sortedPosts <- buildPostList Nothing allPosts
+  buildAtomFeed (take 15 sortedPosts)
+
   let allTags = Set.toList $ foldr (Set.union . Set.fromList . tags) Set.empty allPosts
   void . forP allTags $ \tag -> buildPostList (Just (tag, "tags" </> tag)) (filter (elem tag . tags) allPosts)
+
   copyStaticFiles
 
 buildPost :: FilePath -> Action Post
@@ -96,7 +99,7 @@ buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
   writeFile' (outputFolder </> T.unpack postUrl </> "index.html") . T.unpack $ rendered
   convert $ A.Object postData'
 
-buildPostList :: Maybe (String, FilePath) -> [Post] -> Action ()
+buildPostList :: Maybe (String, FilePath) -> [Post] -> Action [Post]
 buildPostList tag posts = do
   let posts' = sortOn (Down . date) posts
   let postData = A.Object $ KM.fromList $
@@ -105,6 +108,12 @@ buildPostList tag posts = do
         ] <> maybe [] (\(t, _) -> [(fromText "tag", A.String (T.pack t))]) tag
   rendered <- getRendered <$> renderTemplates postData ["postList.html", "shell.html"]
   writeFile' (outputFolder <> maybe "" snd tag </> "index.html") . T.unpack $ rendered
+  pure posts'
+
+buildAtomFeed :: [Post] -> Action ()
+buildAtomFeed posts = do
+  rendered <- getRendered <$> renderTemplates (A.Object $ KM.fromList [(fromText "posts", A.toJSON posts)]) ["atom.xml"]
+  writeFile' (outputFolder </> "atom.xml") . T.unpack $ rendered
 
 copyStaticFiles :: Action ()
 copyStaticFiles = do
