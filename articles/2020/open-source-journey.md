@@ -3,12 +3,9 @@ title: My Open Source Journey
 author: Jan van Brügge
 date: 2020-10-28
 tags: [open-source]
+published_on: the [Futurice Blog](https://futurice.com/blog/my-open-source-journey)
 description: It's October again, Hacktoberfest time. Also time for me to reminisce about my personal learning journey that was so heavily influenced by open source.
 ---
-
-*This post was first published on the [Futurice Blog](https://futurice.com/blog/my-open-source-journey).*
-
-It's October again, Hacktoberfest time. Also time for me to reminisce about my personal learning journey that was so heavily influenced by open source.
 
 ## The Beginning
 

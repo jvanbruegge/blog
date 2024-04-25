@@ -29,6 +29,7 @@ data Post = MkPost
   { title :: String
   , author :: String
   , description :: String
+  , published_on :: Maybe String
   , content :: String
   , url :: String
   , date :: String
