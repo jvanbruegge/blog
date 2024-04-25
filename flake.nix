@@ -13,6 +13,8 @@
           haskell.compiler.ghc96
           pkg-config
           zlib.dev
+          inotify-tools
+          nodePackages.browser-sync
         ];
       };
     }
