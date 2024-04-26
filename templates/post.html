@@ -1,4 +1,10 @@
 <article>
   {{> templates/postHeader.html}}
+  {{#published_on}}
+    <p><em>This post was first published on {{{.}}}.</em></p>
+  {{/published_on}}
+  <p>
+    {{{description}}}
+  </p>
   {{{content}}}
 </article>

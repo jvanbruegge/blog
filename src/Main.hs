@@ -3,32 +3,47 @@
 
 module Main where
 
-import Development.Shake (ShakeOptions(..), shakeOptions, Verbosity (..), Action, forP, getDirectoryFiles, readFile', writeFile', copyFileChanged)
-import Development.Shake.Forward (forwardOptions, shakeArgsForward, cacheAction)
-import GHC.Generics (Generic)
-import Development.Shake.Classes (Binary)
-import Data.Aeson (FromJSON, ToJSON)
-import Data.Aeson.Types qualified as A
-import Data.Text qualified as T
-import Slick (markdownToHTML, compileTemplate', substitute)
-import Slick.Utils (convert)
-import Data.Aeson.KeyMap qualified as KM
-import Development.Shake.FilePath (dropDirectory1, (</>), dropExtension)
-import Data.Functor (void)
-import Data.Maybe (fromMaybe)
 import Control.Monad (foldM)
+import Control.Monad.IO.Class (liftIO)
+import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.Key (fromText)
+import Data.Aeson.KeyMap qualified as KM
+import Data.Aeson.Types qualified as A
+import Data.Functor (void)
 import Data.List (sortOn)
+import Data.Maybe (fromMaybe)
 import Data.Ord (Down(..))
 import Data.Set qualified as Set
+import Data.Text qualified as T
+import Development.Shake (ShakeOptions(..), shakeOptions, Verbosity (..), Action, forP, getDirectoryFiles, readFile', writeFile', copyFileChanged)
+import Development.Shake.Classes (Binary)
+import Development.Shake.FilePath (dropDirectory1, (</>), dropExtension)
+import Development.Shake.Forward (forwardOptions, shakeArgsForward, cacheAction)
+import GHC.Generics (Generic)
+import Slick (compileTemplate', substitute)
+import Slick.Pandoc (loadUsingMeta, defaultHtml5Options, defaultMarkdownOptions)
+import Slick.Utils (convert)
+import Text.Pandoc.Options (writerTableOfContents, writerTemplate)
+import Text.Pandoc.Readers (readMarkdown)
+import Text.Pandoc.Templates (compileTemplate)
+import Text.Pandoc.Writers (writeHtml5String)
 
 outputFolder :: FilePath
 outputFolder = "build/"
+
+markdownToHTML :: T.Text -> Action A.Value
+markdownToHTML txt = do
+  Right x <- liftIO $ compileTemplate "" "<h2>Table of Contents</h2>\n$toc$\n$body$"
+  loadUsingMeta (readMarkdown defaultMarkdownOptions)
+    (writeHtml5String (defaultHtml5Options { writerTableOfContents = True, writerTemplate = Just x }))
+    (writeHtml5String defaultHtml5Options)
+    txt
 
 data Post = MkPost
   { title :: String
   , author :: String
   , description :: String
+  , published_on :: Maybe String
   , content :: String
   , url :: String
   , date :: String

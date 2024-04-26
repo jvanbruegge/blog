@@ -6,8 +6,6 @@ tags: [typescript, open-source]
 description: For the last few years, the core team of Cycle.js ([André](https://twitter.com/andrestaltz) and me) has been redesigning the architecture and the developer experience of the framework. This February we finally found a solution to our problems that still stays true to the core ideas of the framework.
 ---
 
-For the last few years, the core team of Cycle.js ([André](https://twitter.com/andrestaltz) and me) has been redesigning the architecture and the developer experience of the framework. This February we finally found a solution to our problems that still stays true to the core ideas of the framework.
-
 This blog post marks the first in a series that will cover the new design and its development. In this installment, I want to bring everyone onto the same page. _What_ where the problems I described earlier and _how_ does the new design solve them. In the later articles I will cover the new `run` function (the core of the framework) and the new HTTP driver and especially the issues I encountered while implementing those. _\*cough\*_ race conditions _\*cough\*_.
 
 ## The status quo

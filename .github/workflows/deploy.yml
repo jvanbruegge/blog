@@ -1,5 +1,6 @@
 name: Deploy
 on:
+  pull_request:
   push:
     branches:
       - master
@@ -35,6 +36,7 @@ jobs:
         run: cabal run blog
 
       - name: Upload artifact
+        if: github.ref == 'refs/heads/master'
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./build
@@ -42,6 +44,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
 
     permissions:
       pages: write
