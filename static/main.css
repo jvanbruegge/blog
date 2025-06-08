@@ -123,12 +123,14 @@ article > header ul {
   display: flex;
   gap: 0.3em;
   font-size: 0.8em;
+  margin-left: 0;
+  margin-right: 0;
 
   color: var(--secondary-text);
 }
 
 .tag {
-  border: 0.05em solid white;
+  border: 0.05em solid var(--secondary-text);
   border-radius: 0.2em;
   padding: 0 0.2em;
 }
