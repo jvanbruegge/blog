@@ -81,7 +81,7 @@ main {
   height: auto;
   padding-bottom: 1em;
 
-  line-height: 1.4em;
+  line-height: 1.5em;
   font-size: 18px;
 }
 
@@ -150,6 +150,7 @@ p code, li code {
 pre {
   margin: 1em 0.5em;
   padding: 0.8em 0.4em;
+  line-height: 1.2em;
   background: rgb(0, 43, 54);
   overflow-x: scroll;
   color: var(--solarized-function);
