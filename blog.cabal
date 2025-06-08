@@ -20,7 +20,7 @@ executable blog
     default-extensions: DerivingStrategies
                       , OverloadedStrings
                       , LambdaCase
-    build-depends: base ^>=4.18.0.0
+    build-depends: base ^>=4.21.0.0
                  , containers
                  , aeson
                  , slick

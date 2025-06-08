@@ -1,5 +1,6 @@
 {
   inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     utils.url = "github:numtide/flake-utils";
   };
   outputs = { self, nixpkgs, utils }: utils.lib.eachDefaultSystem (system:
@@ -10,7 +11,7 @@
       devShell = pkgs.mkShell {
         buildInputs = with pkgs; [
           cabal-install
-          haskell.compiler.ghc96
+          haskell.compiler.ghc912
           pkg-config
           zlib.dev
           inotify-tools
