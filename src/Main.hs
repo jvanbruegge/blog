@@ -1,11 +1,11 @@
 {-# LANGUAGE StrictData #-}
-{-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DerivingVia #-}
 
 module Main where
 
 import Development.Shake (ShakeOptions(..), shakeOptions, Verbosity (..), Action, forP, getDirectoryFiles, readFile', writeFile', copyFileChanged)
 import Development.Shake.Forward (forwardOptions, shakeArgsForward, cacheAction)
-import GHC.Generics (Generic)
+import GHC.Generics (Generic, Generically(..))
 import Development.Shake.Classes (Binary)
 import Data.Aeson (FromJSON, ToJSON)
 import Data.Aeson.Types qualified as A
@@ -36,7 +36,9 @@ data Post = MkPost
   , tags :: [String]
   }
   deriving stock (Generic, Eq, Ord, Show)
-  deriving anyclass (FromJSON, ToJSON, Binary)
+  deriving (ToJSON, FromJSON) via Generically Post
+
+instance Binary Post
 
 mapP :: (a -> Action b) -> [a] -> Action [b]
 mapP = flip forP

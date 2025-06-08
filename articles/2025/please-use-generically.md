@@ -95,6 +95,8 @@ instance (Generic a, GToJSON (Rep a)) => ToJSON (Generically a) where
 The user can then use `DerivingVia` to use this instance for their type:
 
 ```haskell
+import GHC.Generics (Generic, Generically(..))
+
 data MyData = MkMyData { foo :: Int }
     deriving Generic
     deriving ToJSON via (Generically MyData)
