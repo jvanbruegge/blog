@@ -37,6 +37,7 @@ data Post = MkPost
   , description :: String
   , content :: String
   , url :: String
+  , prefix :: String
   , date :: String
   , readableDate :: String
   , tags :: [String]
@@ -54,6 +55,7 @@ data Publication = MkPublication
   , doi :: String
   , pdf :: String
   , extended :: Maybe String
+  , prefix :: String
   , url :: String
   , readableDate :: String
   , openAccess :: Bool
@@ -106,7 +108,7 @@ buildRules = do
   sortedPosts <- buildPostList Nothing allPosts
   buildAtomFeed (take 15 sortedPosts)
 
-  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "/publications") =<< getDirectoryFiles "." ["publications//*.md"])
+  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "/../publications") =<< getDirectoryFiles "." ["publications//*.md"])
   buildPublications Nothing publications
 
   let allTags = Set.toList $ foldr (Set.union . Set.fromList . (.tags)) Set.empty allPosts
@@ -125,7 +127,7 @@ readMarkdownFile prefix srcPath = cacheAction ("read" :: T.Text, srcPath) $ do
       dateOpt = KM.lookup "date" postData >>= formatDate
       postData' =
         KM.insert "url" (A.String postUrl) $
-        KM.insert "prefix" (A.String ("../.." <> prefix)) $ -- posts are placed in <year>/<slug>/index.html
+        KM.insert "prefix" (A.String ("../" <> prefix)) $ -- posts are placed in <year>/<slug>/index.html
         KM.insert "readableDate" (A.String $ fromMaybe "unknown date" dateOpt) postData
   convert $ A.Object postData'
   where
@@ -133,7 +135,7 @@ readMarkdownFile prefix srcPath = cacheAction ("read" :: T.Text, srcPath) $ do
 
 buildPost :: FilePath -> Action Post
 buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
-  post <- readMarkdownFile "" srcPath
+  post <- readMarkdownFile ".." srcPath
   rendered <- getRendered <$> renderTemplates (A.toJSON post) ["post.html", "shell.html"]
   writeFile' (outputFolder </> post.url </> "index.html") . T.unpack $ rendered
   pure post
