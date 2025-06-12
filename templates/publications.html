@@ -1,0 +1,66 @@
+{{#conference}}
+  <span>All publications from <span class="conference">{{.}}</span>:</span>
+{{/conference}}
+{{#publications}}
+<article>
+  {{> templates/postHeader.html}}
+  <ul class="authors">
+  {{#authors}}
+    <li>{{.}}</li>
+  {{/authors}}
+  </ul>
+  <div class="links">
+    <a href="{{doi}}">[DOI]</a>
+    <a href="{{pdf}}" target="_blank">[PDF]</a>
+    {{#extended}}
+    <a href="{{.}}" target="_blank">[Extended PDF]</a>
+    {{/extended}}
+    <a class="citation" href="{{prefix}}/publications/{{url}}.bib" download>[Citation]</a>
+    <dialog>
+      <p id="cite"></p>
+      <div>
+        <button id="copy">Copy</button>
+        <button id="close">Close</button>
+      </div>
+    </dialog>
+  </div>
+  {{{content}}}
+</article>
+{{/publications}}
+<script>
+const dialog = document.querySelector("dialog");
+dialog.onclick = e => {
+  const rect = e.target.getBoundingClientRect();
+
+  const clickedInDialog = (
+    rect.top <= e.clientY &&
+    e.clientY <= rect.top + rect.height &&
+    rect.left <= e.clientX &&
+    e.clientX <= rect.left + rect.width
+  );
+
+  if (!clickedInDialog) {
+    e.target.close();
+  }
+};
+document.querySelector("#close").onclick = () => dialog.close();
+document.querySelector("#copy").onclick = e => {
+  const elem = document.querySelector("#cite");
+  navigator.clipboard.writeText(cite.textContent);
+  e.target.textContent = "Copied!";
+  setTimeout(() => e.target.textContent = "Copy", 2000);
+};
+
+document.querySelectorAll(".citation").forEach(e => {
+  e.onclick = event => {
+    event.preventDefault();
+    fetch(e.href)
+      .then(response => response.text())
+      .then(body => {
+        const p = dialog.children[0];
+        p.textContent = body;
+        dialog.showModal();
+      })
+  };
+})
+</script>

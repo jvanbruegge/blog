@@ -26,3 +26,4 @@ executable blog
                  , slick
                  , shake
                  , text
+                 , pandoc
