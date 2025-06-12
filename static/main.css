@@ -34,6 +34,7 @@ body {
 nav {
   padding: 0.5em 0;
   font-size: 2em;
+  gap: 1em;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -58,12 +59,12 @@ nav > ul a:hover {
   text-decoration: underline;
 }
 
-header a:visited {
+header h1 a:visited {
   color: white;
 }
 
 a {
-  color: var(--solarized-green);
+  color: var(--highlight-color);
 }
 
 a:visited {
@@ -89,11 +90,43 @@ article {
   margin-top: 2em;
 }
 
-article > header {
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 1em;
+.authors a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.1em;
 }
+
+dialog {
+  background: rgb(24, 29, 36);
+  max-width: 900px;
+  padding: 1em;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+dialog > p {
+  font-family: monospace;
+  white-space: pre-line;
+  font-size: 0.8em;
+  line-height: 1.1em;
+  width: calc(min(100vw, 900px) - 50px - 2.5em);
+  height: 100%;
+}
+
+dialog > div {
+  margin-top: 1em;
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1em;
+}
+
+dialog button {
+  font-size: 1.5em;
+  color: rgb(24, 29, 36);
+  padding: 0.1em;
+};
 
 h1, h2, h3, h4, h5, h6 {
   color: white;
@@ -113,9 +146,28 @@ h2 {
   font-size: 1.4em;
 }
 
+article > header {
+  display: flex;
+  flex-direction: column;
+}
+
+article > header > div {
+  order: -2;
+  display: flex;
+  gap: 1em;
+}
+
 article > header time {
-  order: -1;
   color: var(--secondary-text);
+}
+
+article > header + a {
+  font-size: 0.8em;
+}
+
+article > header .openAccess {
+  font-variant: small-caps;
+  color: rgb(185, 87, 9);
 }
 
 article > header ul {
@@ -193,7 +245,7 @@ footer {
   }
 }
 
-@media (max-width: 500px) {
+@media (max-width: 570px) {
   nav {
     flex-direction: column;
     gap: 0.5em;
