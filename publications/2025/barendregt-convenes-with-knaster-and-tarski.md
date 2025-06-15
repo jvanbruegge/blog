@@ -6,7 +6,7 @@ authors:
     - "[James McKinna](https://orcid.org/0000-0001-6745-2560)"
     - "[Andrei Popescu](https://orcid.org/0000-0001-8747-0619)"
     - "[Dmitriy Traytel](https://orcid.org/0000-0001-7982-2768)"
-conference: "POPL 2025"
+conference: POPL
 doi: https://doi.org/10.1145/3704893
 pdf: https://dl.acm.org/doi/pdf/10.1145/3704893
 extended: https://zenodo.org/records/14198070/files/barendregt_convenes_with_knaster_tarski_extended.pdf

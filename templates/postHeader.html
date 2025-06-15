@@ -2,7 +2,7 @@
   <h1><a href="{{prefix}}/{{url}}">{{title}}</a></h1>
   <div>
     <time datetime="{{date}}">{{readableDate}}</time>
-    {{#conference}}<a href="{{prefix}}/conferences/{{conference}}" class="conference">{{conference}}</a>{{/conference}}
+    {{#conference}}<a href="{{prefix}}/conferences/{{conference}}" class="conference">{{conference}} {{year}}</a>{{/conference}}
     {{#openAccess}}<span class="openAccess">[Open Access]</span>{{/openAccess}}
   </div>
   {{^conference}}

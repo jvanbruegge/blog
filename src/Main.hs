@@ -17,6 +17,7 @@ import Slick (compileTemplate', substitute)
 import Slick.Utils (convert)
 import Slick.Pandoc (PandocWriter, PandocReader, defaultHtml5Options, defaultMarkdownOptions)
 import Text.Pandoc (Meta(..), MetaValue(..), PandocIO, runIO, Pandoc(..), Block(..), writeHtml5String, readMarkdown, def, writePlain)
+import Text.Pandoc.Shared (trim)
 import Data.Aeson.KeyMap qualified as KM
 import Development.Shake.FilePath (dropDirectory1, (</>), dropExtension)
 import Data.Functor (void)
@@ -50,6 +51,7 @@ instance Binary Post
 data Publication = MkPublication
   { title :: String
   , date :: String
+  , year :: String
   , authors :: [String]
   , conference :: String
   , doi :: String
@@ -69,10 +71,10 @@ instance Binary Publication
 mapP :: (a -> Action b) -> [a] -> Action [b]
 mapP = flip forP
 
-formatDate :: A.Value -> Maybe T.Text
+formatDate :: A.Value -> Maybe (T.Text, T.Text)
 formatDate (A.String t) |
   [y, m, d] <- T.splitOn "-" t
-  , Just m' <- month m = Just $ m' <> " " <> d <> ", " <> y
+  , Just m' <- month m = Just $ (m' <> " " <> d <> ", " <> y, y)
   where
     month = \case
       "01" -> Just "January"
@@ -108,7 +110,7 @@ buildRules = do
   sortedPosts <- buildPostList Nothing allPosts
   buildAtomFeed (take 15 sortedPosts)
 
-  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "/../publications") =<< getDirectoryFiles "." ["publications//*.md"])
+  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "/..") =<< getDirectoryFiles "." ["publications//*.md"])
   buildPublications Nothing publications
 
   let allTags = Set.toList $ foldr (Set.union . Set.fromList . (.tags)) Set.empty allPosts
@@ -128,7 +130,8 @@ readMarkdownFile prefix srcPath = cacheAction ("read" :: T.Text, srcPath) $ do
       postData' =
         KM.insert "url" (A.String postUrl) $
         KM.insert "prefix" (A.String ("../" <> prefix)) $ -- posts are placed in <year>/<slug>/index.html
-        KM.insert "readableDate" (A.String $ fromMaybe "unknown date" dateOpt) postData
+        KM.insert "readableDate" (A.String $ fromMaybe "unknown date" (fst <$> dateOpt)) $
+        KM.insert "year" (A.String $ fromMaybe "" (snd <$> dateOpt)) postData
   convert $ A.Object postData'
   where
     markdownKeys = Set.fromList ["content", "title", "description", "authors"]
@@ -156,7 +159,7 @@ buildPublications conference publications = do
   let postData = A.Object $ KM.fromList $
         [ (fromText "publications", A.toJSON publications)
         , (fromText "prefix", A.String (maybe ".." (const "../..") conference))
-        ] <> maybe [] (\(t, _) -> [(fromText "conference", A.String (T.pack t))]) conference
+        ] <> maybe [] (\(t, _) -> [(fromText "conference", A.String (trim (T.pack t)))]) conference
   rendered <- getRendered <$> renderTemplates postData ["publications.html", "shell.html"]
   writeFile' (outputFolder </> maybe "publications" snd conference </> "index.html") . T.unpack $ rendered
 
@@ -203,7 +206,7 @@ loadUsing reader writer text = do
       A.Object m -> return . A.Object $ KM.insert "content" (A.String outText) m
           -- meta & _Object . at "content" ?~ String outText
       _ -> fail "Failed to parse metadata"
-  return withContent
+  pure withContent
 
 makePandocReaderWithMetaWriter
     :: PandocReader textType
@@ -222,8 +225,8 @@ flattenMeta writer (Meta meta) = toJSON <$> M.traverseWithKey go meta
   go key (MetaMap     m) = toJSON <$> traverse (go key) m
   go key (MetaList    m) = A.toJSONList <$> traverse (go key) m
   go _ (MetaBool    m) = pure $ toJSON m
-  go _ (MetaString  m) = pure $ toJSON m
-  go key (MetaInlines m) = toJSON <$> (unPandocM . writer key . Pandoc mempty . (:[]) . Plain $ m)
+  go _ (MetaString  m) = pure $ toJSON (trim m)
+  go key (MetaInlines m) = toJSON . trim <$> (unPandocM . writer key . Pandoc mempty . (:[]) . Plain $ m)
   go key (MetaBlocks  m) = toJSON <$> (unPandocM . writer key . Pandoc mempty $ m)
 
 unPandocM :: PandocIO a -> Action a

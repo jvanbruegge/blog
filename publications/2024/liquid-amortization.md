@@ -3,7 +3,7 @@ title: "Liquid Amortization: Proving Amortized Complexity with LiquidHaskell (Fu
 date: 2024-08-28
 authors:
     - "[Jan van Brügge](https://orcid.org/0000-0003-1560-7326)"
-conference: "Haskell Symposium 2024"
+conference: "Haskell Symposium"
 doi: https://doi.org/10.1145/3677999.3678282
 pdf: https://dl.acm.org/doi/pdf/10.1145/3677999.3678282
 openAccess: true
