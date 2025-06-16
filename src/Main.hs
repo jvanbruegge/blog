@@ -2,6 +2,7 @@
 {-# LANGUAGE DerivingVia #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE OverloadedRecordDot #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Main where
 
@@ -110,7 +111,7 @@ buildRules = do
   sortedPosts <- buildPostList Nothing allPosts
   buildAtomFeed (take 15 sortedPosts)
 
-  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "/..") =<< getDirectoryFiles "." ["publications//*.md"])
+  publications <- sortOn (Down . (.date)) <$> (mapP (readMarkdownFile "..") =<< getDirectoryFiles "." ["publications//*.md"])
   buildPublications Nothing publications
 
   let allTags = Set.toList $ foldr (Set.union . Set.fromList . (.tags)) Set.empty allPosts
@@ -129,7 +130,7 @@ readMarkdownFile prefix srcPath = cacheAction ("read" :: T.Text, srcPath) $ do
       dateOpt = KM.lookup "date" postData >>= formatDate
       postData' =
         KM.insert "url" (A.String postUrl) $
-        KM.insert "prefix" (A.String ("../" <> prefix)) $ -- posts are placed in <year>/<slug>/index.html
+        KM.insert "prefix" (A.String prefix) $ -- posts are placed in <year>/<slug>/index.html
         KM.insert "readableDate" (A.String $ fromMaybe "unknown date" (fst <$> dateOpt)) $
         KM.insert "year" (A.String $ fromMaybe "" (snd <$> dateOpt)) postData
   convert $ A.Object postData'
@@ -138,17 +139,18 @@ readMarkdownFile prefix srcPath = cacheAction ("read" :: T.Text, srcPath) $ do
 
 buildPost :: FilePath -> Action Post
 buildPost srcPath = cacheAction ("build" :: T.Text, srcPath) $ do
-  post <- readMarkdownFile ".." srcPath
+  post <- readMarkdownFile "../.." srcPath
   rendered <- getRendered <$> renderTemplates (A.toJSON post) ["post.html", "shell.html"]
   writeFile' (outputFolder </> post.url </> "index.html") . T.unpack $ rendered
   pure post
 
 buildPostList :: Maybe (String, FilePath) -> [Post] -> Action [Post]
 buildPostList tag posts = do
-  let posts' = sortOn (Down . (.date)) posts
-  let postData = A.Object $ KM.fromList $
+  let prefix' = maybe "." (const "../..") tag
+      posts' = map (\MkPost { .. } -> MkPost { prefix = T.unpack prefix', .. }) $ sortOn (Down . (.date)) posts
+      postData = A.Object $ KM.fromList $
         [ (fromText "posts", A.toJSON posts')
-        , (fromText "prefix", A.String (maybe "." (const "../..") tag))
+        , (fromText "prefix", A.String prefix')
         ] <> maybe [] (\(t, _) -> [(fromText "tag", A.String (T.pack t))]) tag
   rendered <- getRendered <$> renderTemplates postData ["postList.html", "shell.html"]
   writeFile' (outputFolder <> maybe "" snd tag </> "index.html") . T.unpack $ rendered

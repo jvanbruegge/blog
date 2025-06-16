@@ -1,5 +1,12 @@
 <header>
-  <h1><a href="{{prefix}}/{{url}}">{{title}}</a></h1>
+  <h1>
+    {{#doi}}
+    <a target="_blank" href="{{doi}}">{{title}}</a>
+    {{/doi}}
+    {{^doi}}
+    <a href="{{prefix}}/{{url}}">{{title}}</a>
+    {{/doi}}
+  </h1>
   <div>
     <time datetime="{{date}}">{{readableDate}}</time>
     {{#conference}}<a href="{{prefix}}/conferences/{{conference}}" class="conference">{{conference}} {{year}}</a>{{/conference}}
