@@ -11,10 +11,15 @@
   </ul>
   <div class="links">
     <a href="{{doi}}">[DOI]</a>
+    {{#pdf}}
     <a href="{{pdf}}" target="_blank">[PDF]</a>
+    {{/pdf}}
     {{#extended}}
     <a href="{{.}}" target="_blank">[Extended PDF]</a>
     {{/extended}}
+    {{#draft}}
+    <a href="{{.}}" target="_blank">[Draft PDF]</a>
+    {{/draft}}
     <a class="citation" href="{{prefix}}/publications/{{url}}.bib" download>[Citation]</a>
     <dialog>
       <p id="cite"></p>

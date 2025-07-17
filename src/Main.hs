@@ -56,12 +56,14 @@ data Publication = MkPublication
   , authors :: [String]
   , conference :: String
   , doi :: String
-  , pdf :: String
+  , pdf :: Maybe String
   , extended :: Maybe String
+  , draft :: Maybe String
   , prefix :: String
   , url :: String
   , readableDate :: String
   , openAccess :: Bool
+  , toAppear :: Maybe Bool
   , content :: String
   }
   deriving stock (Generic, Eq, Ord, Show)
